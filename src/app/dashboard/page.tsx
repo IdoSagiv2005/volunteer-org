@@ -20,16 +20,16 @@ export default async function DashboardPage() {
   ])
 
   const stats = [
-    { label: 'Families', value: families.count ?? 0, color: 'bg-blue-50 text-blue-700' },
-    { label: 'Volunteers', value: volunteers.count ?? 0, color: 'bg-green-50 text-green-700' },
-    { label: 'Deliveries', value: deliveries.count ?? 0, color: 'bg-orange-50 text-orange-700' },
-    { label: 'Upcoming Activities', value: activities.count ?? 0, color: 'bg-purple-50 text-purple-700' },
+    { label: 'משפחות', value: families.count ?? 0, color: 'bg-blue-50 text-blue-700' },
+    { label: 'מתנדבים', value: volunteers.count ?? 0, color: 'bg-green-50 text-green-700' },
+    { label: 'משלוחים', value: deliveries.count ?? 0, color: 'bg-orange-50 text-orange-700' },
+    { label: 'פעילויות קרובות', value: activities.count ?? 0, color: 'bg-purple-50 text-purple-700' },
   ]
 
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        {manager?.is_super_admin ? 'All Branches Overview' : `${manager?.branches?.name ?? ''} Branch`}
+        {manager?.is_super_admin ? 'סקירה כללית — כל הסניפים' : `סניף ${manager?.branches?.name ?? ''}`}
       </h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(({ label, value, color }) => (

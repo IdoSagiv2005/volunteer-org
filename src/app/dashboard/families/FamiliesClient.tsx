@@ -59,7 +59,7 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this family?')) return
+    if (!confirm('למחוק משפחה זו?')) return
     await supabase.from('families').delete().eq('family_id', id)
     setFamilies(prev => prev.filter(f => f.family_id !== id))
   }
@@ -94,17 +94,17 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Families</h2>
+        <h2 className="text-2xl font-bold text-gray-800">משפחות</h2>
         <div className="flex gap-2">
           {!isSuperAdmin && (
             <label className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700 text-sm font-medium">
-              <Upload size={16} /> Import Excel
+              <Upload size={16} /> ייבוא מאקסל
               <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleExcelImport} />
             </label>
           )}
           {!isSuperAdmin && (
             <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-              <Plus size={16} /> Add Family
+              <Plus size={16} /> הוסף משפחה
             </button>
           )}
         </div>
@@ -112,7 +112,7 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
 
       <input
         type="text"
-        placeholder="Search by name or ID..."
+        placeholder="חיפוש לפי שם או ת.ז..."
         value={search}
         onChange={e => setSearch(e.target.value)}
         className="mb-4 w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -122,8 +122,8 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {['Name', 'National ID', 'Phone', 'Address', 'Members', 'Disability', ''].map(h => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>
+              {['שם מלא', 'תעודת זהות', 'טלפון', 'כתובת', 'חברי משפחה', 'סוג נכות', ''].map(h => (
+                <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>
               ))}
             </tr>
           </thead>
@@ -147,7 +147,7 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No families found</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">לא נמצאו משפחות</td></tr>
             )}
           </tbody>
         </table>
@@ -157,17 +157,17 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg">{editing ? 'Edit Family' : 'Add Family'}</h3>
+              <h3 className="font-bold text-lg">{editing ? 'עריכת משפחה' : 'הוספת משפחה'}</h3>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
               {[
-                { key: 'full_name', label: 'Full Name', required: true },
-                { key: 'national_id', label: 'National ID', required: true },
-                { key: 'address', label: 'Address' },
-                { key: 'phone', label: 'Phone' },
-                { key: 'member_count', label: 'Members', type: 'number' },
-                { key: 'disability_type', label: 'Disability Type' },
+                { key: 'full_name', label: 'שם מלא', required: true },
+                { key: 'national_id', label: 'תעודת זהות', required: true },
+                { key: 'address', label: 'כתובת' },
+                { key: 'phone', label: 'טלפון' },
+                { key: 'member_count', label: 'מספר חברי משפחה', type: 'number' },
+                { key: 'disability_type', label: 'סוג נכות' },
               ].map(({ key, label, required, type }) => (
                 <div key={key}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -181,7 +181,7 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
                 </div>
               ))}
               <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">
-                {editing ? 'Save Changes' : 'Add Family'}
+                {editing ? 'שמור שינויים' : 'הוסף משפחה'}
               </button>
             </form>
           </div>

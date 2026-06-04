@@ -8,6 +8,7 @@ type Activity = { activity_id: string; type_id: string | null; date: string; vol
 type Volunteer = { volunteer_id: string; name: string }
 type ActivityType = { type_id: string; type_name: string }
 type Props = { activities: Activity[]; volunteers: Volunteer[]; activityTypes: ActivityType[]; branchId: string | null; isSuperAdmin: boolean }
+
 type FormStatus = 'upcoming' | 'completed'
 const empty: { type_id: string; date: string; volunteer_id: string; status: FormStatus } = { type_id: '', date: '', volunteer_id: '', status: 'upcoming' }
 
@@ -42,32 +43,34 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this activity?')) return
+    if (!confirm('למחוק פעילות זו?')) return
     await supabase.from('activities').delete().eq('activity_id', id)
     setActivities(prev => prev.filter(a => a.activity_id !== id))
   }
 
+  const filterLabels = { all: 'הכל', upcoming: 'עתידיות', completed: 'הושלמו' }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Activities</h2>
+        <h2 className="text-2xl font-bold text-gray-800">פעילויות</h2>
         {!isSuperAdmin && (
           <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-            <Plus size={16} /> Add Activity
+            <Plus size={16} /> הוסף פעילות
           </button>
         )}
       </div>
 
       <div className="flex gap-2 mb-4">
         {(['all', 'upcoming', 'completed'] as const).map(s => (
-          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${filter === s ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{s}</button>
+          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1 rounded-full text-sm font-medium ${filter === s ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{filterLabels[s]}</button>
         ))}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>{['Type', 'Date', 'Volunteer', 'Status', ''].map(h => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>)}</tr>
+            <tr>{['סוג', 'תאריך', 'מתנדב', 'סטטוס', ''].map(h => <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filtered.map(a => (
@@ -76,7 +79,9 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
                 <td className="px-4 py-3 text-gray-600">{a.date}</td>
                 <td className="px-4 py-3 text-gray-600">{a.volunteers?.name ?? '—'}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${a.status === 'upcoming' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>{a.status}</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${a.status === 'upcoming' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
+                    {a.status === 'upcoming' ? 'עתידי' : 'הושלם'}
+                  </span>
                 </td>
                 <td className="px-4 py-3">
                   {!isSuperAdmin && (
@@ -88,7 +93,7 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">No activities found</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">לא נמצאו פעילויות</td></tr>}
           </tbody>
         </table>
       </div>
@@ -97,36 +102,36 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg">{editing ? 'Edit Activity' : 'Add Activity'}</h3>
+              <h3 className="font-bold text-lg">{editing ? 'עריכת פעילות' : 'הוספת פעילות'}</h3>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Activity Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">סוג פעילות</label>
                 <select value={form.type_id} onChange={e => setForm(p => ({ ...p, type_id: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">— Select type —</option>
+                  <option value="">— בחר סוג —</option>
                   {activityTypes.map(t => <option key={t.type_id} value={t.type_id}>{t.type_name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">תאריך</label>
                 <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Volunteer</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">מתנדב</label>
                 <select value={form.volunteer_id} onChange={e => setForm(p => ({ ...p, volunteer_id: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">— Select volunteer —</option>
+                  <option value="">— בחר מתנדב —</option>
                   {volunteers.map(v => <option key={v.volunteer_id} value={v.volunteer_id}>{v.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value as 'upcoming' | 'completed' }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="upcoming">Upcoming</option>
-                  <option value="completed">Completed</option>
+                <label className="block text-sm font-medium text-gray-700 mb-1">סטטוס</label>
+                <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value as FormStatus }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="upcoming">עתידי</option>
+                  <option value="completed">הושלם</option>
                 </select>
               </div>
-              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'Save Changes' : 'Add Activity'}</button>
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'שמור שינויים' : 'הוסף פעילות'}</button>
             </form>
           </div>
         </div>

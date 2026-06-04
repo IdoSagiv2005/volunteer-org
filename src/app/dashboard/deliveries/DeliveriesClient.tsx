@@ -42,7 +42,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this delivery?')) return
+    if (!confirm('למחוק משלוח זה?')) return
     await supabase.from('deliveries').delete().eq('address_id', id)
     setDeliveries(prev => prev.filter(d => d.address_id !== id))
   }
@@ -63,14 +63,14 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Deliveries</h2>
+        <h2 className="text-2xl font-bold text-gray-800">משלוחים</h2>
         <div className="flex gap-2">
           <button onClick={() => setShowMap(true)} className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
-            <Map size={16} /> View Map
+            <Map size={16} /> צפה במפה
           </button>
           {!isSuperAdmin && (
             <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-              <Plus size={16} /> Add Delivery
+              <Plus size={16} /> הוסף משלוח
             </button>
           )}
         </div>
@@ -79,7 +79,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>{['Family', 'Address', 'Door Photo', ''].map(h => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>)}</tr>
+            <tr>{['משפחה', 'כתובת', 'תמונת דלת', ''].map(h => <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {deliveries.map(d => (
@@ -93,7 +93,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
                     </a>
                   ) : !isSuperAdmin ? (
                     <label className="flex items-center gap-1 text-xs text-blue-600 cursor-pointer hover:underline">
-                      {uploadingId === d.address_id ? 'Uploading...' : <><Camera size={13} /> Add photo</>}
+                      {uploadingId === d.address_id ? 'מעלה...' : <><Camera size={13} /> הוסף תמונה</>}
                       <input type="file" accept="image/*" className="hidden" onChange={e => handlePhotoUpload(d, e)} disabled={uploadingId === d.address_id} />
                     </label>
                   ) : '—'}
@@ -108,7 +108,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
                 </td>
               </tr>
             ))}
-            {deliveries.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">No deliveries found</td></tr>}
+            {deliveries.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">לא נמצאו משלוחים</td></tr>}
           </tbody>
         </table>
       </div>
@@ -117,22 +117,22 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg">{editing ? 'Edit Delivery' : 'Add Delivery'}</h3>
+              <h3 className="font-bold text-lg">{editing ? 'עריכת משלוח' : 'הוספת משלוח'}</h3>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">כתובת</label>
                 <input type="text" value={form.address} onChange={e => setForm(p => ({ ...p, address: e.target.value }))} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Family</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">משפחה</label>
                 <select value={form.family_id} onChange={e => setForm(p => ({ ...p, family_id: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">— Select family —</option>
+                  <option value="">— בחר משפחה —</option>
                   {families.map(f => <option key={f.family_id} value={f.family_id}>{f.full_name}</option>)}
                 </select>
               </div>
-              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'Save Changes' : 'Add Delivery'}</button>
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'שמור שינויים' : 'הוסף משלוח'}</button>
             </form>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl h-[80vh] flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg">Delivery Addresses</h3>
+              <h3 className="font-bold text-lg">כתובות משלוחים</h3>
               <button onClick={() => setShowMap(false)}><X size={20} /></button>
             </div>
             <div className="flex-1 rounded-lg overflow-hidden">

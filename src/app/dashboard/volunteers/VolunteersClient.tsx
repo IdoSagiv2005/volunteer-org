@@ -39,7 +39,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this volunteer?')) return
+    if (!confirm('למחוק מתנדב זה?')) return
     await supabase.from('volunteers').delete().eq('volunteer_id', id)
     setVolunteers(prev => prev.filter(v => v.volunteer_id !== id))
   }
@@ -47,18 +47,18 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Volunteers</h2>
+        <h2 className="text-2xl font-bold text-gray-800">מתנדבים</h2>
         {!isSuperAdmin && (
           <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-            <Plus size={16} /> Add Volunteer
+            <Plus size={16} /> הוסף מתנדב
           </button>
         )}
       </div>
-      <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <input type="text" placeholder="חיפוש..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>{['Name', 'National ID', 'Phone', 'Address', ''].map(h => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>)}</tr>
+            <tr>{['שם', 'תעודת זהות', 'טלפון', 'כתובת', ''].map(h => <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filtered.map(v => (
@@ -77,7 +77,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">No volunteers found</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">לא נמצאו מתנדבים</td></tr>}
           </tbody>
         </table>
       </div>
@@ -85,17 +85,17 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg">{editing ? 'Edit Volunteer' : 'Add Volunteer'}</h3>
+              <h3 className="font-bold text-lg">{editing ? 'עריכת מתנדב' : 'הוספת מתנדב'}</h3>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
-              {[{ key: 'name', label: 'Name', required: true }, { key: 'national_id', label: 'National ID', required: true }, { key: 'phone', label: 'Phone' }, { key: 'address', label: 'Address' }].map(({ key, label, required }) => (
+              {[{ key: 'name', label: 'שם', required: true }, { key: 'national_id', label: 'תעודת זהות', required: true }, { key: 'phone', label: 'טלפון' }, { key: 'address', label: 'כתובת' }].map(({ key, label, required }) => (
                 <div key={key}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
                   <input type="text" value={form[key as keyof typeof form]} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} required={required} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               ))}
-              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'Save Changes' : 'Add Volunteer'}</button>
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'שמור שינויים' : 'הוסף מתנדב'}</button>
             </form>
           </div>
         </div>
