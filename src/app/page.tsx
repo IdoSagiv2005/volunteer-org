@@ -9,7 +9,7 @@ export default function Home() {
       <header className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
         <div className="flex items-center gap-2">
           <Heart className="text-red-500" size={22} fill="currentColor" />
-          <span className="font-bold text-gray-800 text-lg">Yad B'Yad</span>
+          <span className="font-bold text-gray-800 text-lg">מאירים</span>
         </div>
         <Link href="/login" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
           Staff Login
@@ -25,7 +25,7 @@ export default function Home() {
           Helping Families Across Israel
         </h1>
         <p className="text-lg text-gray-500 max-w-xl leading-relaxed mb-10">
-          Yad B'Yad is a volunteer organization dedicated to supporting families in need through food deliveries, community activities, and personal care — one branch at a time.
+          מאירים is a volunteer organization dedicated to supporting families in need through food deliveries, community activities, and personal care — one branch at a time.
         </p>
         <div className="flex gap-3 flex-wrap justify-center">
           <a href="mailto:contact@yadbyadorg.il" className="px-6 py-3 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors">
@@ -93,8 +93,8 @@ export default function Home() {
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Contact Us</h2>
         <p className="text-gray-500 mb-8">Want to volunteer or need our help? Reach out.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="tel:+97212345678" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
-            <Phone size={16} /> +972 12-345-6789
+          <a href="tel:0544444444" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <Phone size={16} /> 054-444-4444
           </a>
           <a href="mailto:contact@yadbyadorg.il" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
             <Mail size={16} /> contact@yadbyadorg.il
@@ -104,7 +104,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
-        © {new Date().getFullYear()} Yad B'Yad. All rights reserved.
+        © {new Date().getFullYear()} מאירים. All rights reserved.
       </footer>
 
     </div>
