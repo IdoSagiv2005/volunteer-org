@@ -38,7 +38,7 @@ export default function Sidebar({ manager }: { manager: Manager }) {
   }
 
   return (
-    <aside className="w-56 bg-white border-l border-gray-200 flex flex-col">
+    <aside className="w-56 bg-white border-r border-gray-200 flex flex-col">
       <div className="p-4 border-b border-gray-200">
         <h1 className="font-bold text-gray-800 text-lg">מאירים</h1>
         {manager && (
