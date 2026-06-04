@@ -15,21 +15,22 @@ export default async function ManagerHoursPage() {
       .from('manager_hours')
       .select('*, managers(name, branches(name))')
       .order('date', { ascending: false })
-    hours = data
+    hours = data ?? []
 
     const { data: mgrs } = await supabase
       .from('managers')
       .select('id, name, branch_id, branches(id, name)')
       .eq('is_super_admin', false)
       .order('name')
-    allManagers = mgrs
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    allManagers = (mgrs ?? []) as any[]
   } else {
     const { data } = await supabase
       .from('manager_hours')
       .select('*')
       .eq('manager_id', manager?.id)
       .order('date', { ascending: false })
-    hours = data
+    hours = data ?? []
   }
 
   return (
