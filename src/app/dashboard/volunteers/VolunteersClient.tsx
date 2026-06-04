@@ -1,0 +1,105 @@
+'use client'
+
+import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { Plus, Pencil, Trash2, X } from 'lucide-react'
+
+type Volunteer = { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string }
+type Props = { volunteers: Volunteer[]; branchId: string | null; isSuperAdmin: boolean }
+const empty = { name: '', phone: '', address: '', national_id: '' }
+
+export default function VolunteersClient({ volunteers: initial, branchId, isSuperAdmin }: Props) {
+  const [volunteers, setVolunteers] = useState(initial)
+  const [showForm, setShowForm] = useState(false)
+  const [editing, setEditing] = useState<Volunteer | null>(null)
+  const [form, setForm] = useState(empty)
+  const [search, setSearch] = useState('')
+  const supabase = createClient()
+
+  const filtered = volunteers.filter(v => v.name.toLowerCase().includes(search.toLowerCase()) || v.national_id.includes(search))
+
+  function openCreate() { setEditing(null); setForm(empty); setShowForm(true) }
+  function openEdit(v: Volunteer) {
+    setEditing(v)
+    setForm({ name: v.name, phone: v.phone ?? '', address: v.address ?? '', national_id: v.national_id })
+    setShowForm(true)
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const payload = { ...form, branch_id: branchId! }
+    if (editing) {
+      const { data } = await supabase.from('volunteers').update(payload).eq('volunteer_id', editing.volunteer_id).select().single()
+      if (data) setVolunteers(prev => prev.map(v => v.volunteer_id === data.volunteer_id ? data : v))
+    } else {
+      const { data } = await supabase.from('volunteers').insert(payload).select().single()
+      if (data) setVolunteers(prev => [...prev, data])
+    }
+    setShowForm(false)
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this volunteer?')) return
+    await supabase.from('volunteers').delete().eq('volunteer_id', id)
+    setVolunteers(prev => prev.filter(v => v.volunteer_id !== id))
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Volunteers</h2>
+        {!isSuperAdmin && (
+          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+            <Plus size={16} /> Add Volunteer
+          </button>
+        )}
+      </div>
+      <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>{['Name', 'National ID', 'Phone', 'Address', ''].map(h => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>)}</tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filtered.map(v => (
+              <tr key={v.volunteer_id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium text-gray-800">{v.name}</td>
+                <td className="px-4 py-3 text-gray-600">{v.national_id}</td>
+                <td className="px-4 py-3 text-gray-600">{v.phone}</td>
+                <td className="px-4 py-3 text-gray-600">{v.address}</td>
+                <td className="px-4 py-3">
+                  {!isSuperAdmin && (
+                    <div className="flex gap-2">
+                      <button onClick={() => openEdit(v)} className="text-gray-400 hover:text-blue-600"><Pencil size={15} /></button>
+                      <button onClick={() => handleDelete(v.volunteer_id)} className="text-gray-400 hover:text-red-600"><Trash2 size={15} /></button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">No volunteers found</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      {showForm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-lg">{editing ? 'Edit Volunteer' : 'Add Volunteer'}</h3>
+              <button onClick={() => setShowForm(false)}><X size={20} /></button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {[{ key: 'name', label: 'Name', required: true }, { key: 'national_id', label: 'National ID', required: true }, { key: 'phone', label: 'Phone' }, { key: 'address', label: 'Address' }].map(({ key, label, required }) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                  <input type="text" value={form[key as keyof typeof form]} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} required={required} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+              ))}
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'Save Changes' : 'Add Volunteer'}</button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
