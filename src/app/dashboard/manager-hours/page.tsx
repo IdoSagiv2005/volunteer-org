@@ -6,7 +6,8 @@ export default async function ManagerHoursPage() {
   const { data: { user } } = await supabase.auth.getUser()
   const { data: manager } = await supabase.from('managers').select('id, branch_id, name, is_super_admin').eq('user_id', user!.id).single()
 
-  let hours, allManagers
+  let hours: unknown[] = []
+  let allManagers: { id: string; name: string; branches: { name: string } | null }[] = []
 
   if (manager?.is_super_admin) {
     const { data } = await supabase
