@@ -6,7 +6,7 @@ import CoordinationsClient from './CoordinationsClient'
 
 type Delivery = { address_id: string; address: string; door_photo_url: string | null; family_id: string | null; branch_id: string; families: { full_name: string } | null }
 type Family = { family_id: string; full_name: string }
-type Coordination = { id: string; date: string; time: string; address: string; volunteer_id: string | null; branch_id: string; volunteers: { name: string } | null }
+type Coordination = { id: string; date: string; scheduled_time: string; address: string; volunteer_id: string | null; branch_id: string; volunteers: { name: string } | null }
 type Volunteer = { volunteer_id: string; name: string }
 
 type Props = {

@@ -7,7 +7,7 @@ import { Plus, Pencil, Trash2, X } from 'lucide-react'
 type Coordination = {
   id: string
   date: string
-  time: string
+  scheduled_time: string
   address: string
   volunteer_id: string | null
   branch_id: string
@@ -17,7 +17,7 @@ type Coordination = {
 type Volunteer = { volunteer_id: string; name: string }
 type Props = { coordinations: Coordination[]; volunteers: Volunteer[]; branchId: string | null; isSuperAdmin: boolean }
 
-const empty = { date: '', time: '', address: '', volunteer_id: '' }
+const empty = { date: '', scheduled_time: '', address: '', volunteer_id: '' }
 
 export default function CoordinationsClient({ coordinations: initial, volunteers, branchId, isSuperAdmin }: Props) {
   const [coordinations, setCoordinations] = useState(initial)
@@ -29,7 +29,7 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
   function openCreate() { setEditing(null); setForm(empty); setShowForm(true) }
   function openEdit(c: Coordination) {
     setEditing(c)
-    setForm({ date: c.date, time: c.time.slice(0, 5), address: c.address, volunteer_id: c.volunteer_id ?? '' })
+    setForm({ date: c.date, scheduled_time: c.scheduled_time.slice(0, 5), address: c.address, volunteer_id: c.volunteer_id ?? '' })
     setShowForm(true)
   }
 
@@ -37,7 +37,7 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
     e.preventDefault()
     const payload = {
       date: form.date,
-      time: form.time,
+      scheduled_time: form.scheduled_time,
       address: form.address,
       volunteer_id: form.volunteer_id || null,
       branch_id: branchId!,
@@ -82,7 +82,7 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
               {coordinations.map(c => (
                 <tr key={c.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-600">{c.date}</td>
-                  <td className="px-4 py-3 text-gray-600">{c.time.slice(0, 5)}</td>
+                  <td className="px-4 py-3 text-gray-600">{c.scheduled_time.slice(0, 5)}</td>
                   <td className="px-4 py-3 font-medium text-gray-800">{c.address}</td>
                   <td className="px-4 py-3 text-gray-600">{c.volunteers?.name ?? '—'}</td>
                   <td className="px-4 py-3">
@@ -117,7 +117,7 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">שעה</label>
-                <input type="time" value={form.time} onChange={e => setForm(p => ({ ...p, time: e.target.value }))} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="time" value={form.scheduled_time} onChange={e => setForm(p => ({ ...p, scheduled_time: e.target.value }))} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">כתובת</label>

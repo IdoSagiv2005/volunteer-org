@@ -1,7 +1,7 @@
 CREATE TABLE coordinations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   date date NOT NULL,
-  time time NOT NULL,
+  scheduled_time time NOT NULL,
   address text NOT NULL,
   volunteer_id uuid REFERENCES volunteers(volunteer_id) ON DELETE SET NULL,
   branch_id uuid REFERENCES branches(id) ON DELETE CASCADE,

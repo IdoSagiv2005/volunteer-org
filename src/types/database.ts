@@ -37,9 +37,9 @@ export type Database = {
         Update: { type_id?: string | null; date?: string; status?: 'upcoming' | 'completed' }
       }
       coordinations: {
-        Row: { id: string; date: string; time: string; address: string; volunteer_id: string | null; branch_id: string; created_at: string }
-        Insert: { id?: string; date: string; time: string; address: string; volunteer_id?: string | null; branch_id: string }
-        Update: { date?: string; time?: string; address?: string; volunteer_id?: string | null }
+        Row: { id: string; date: string; scheduled_time: string; address: string; volunteer_id: string | null; branch_id: string; created_at: string }
+        Insert: { id?: string; date: string; scheduled_time: string; address: string; volunteer_id?: string | null; branch_id: string }
+        Update: { date?: string; scheduled_time?: string; address?: string; volunteer_id?: string | null }
       }
       activity_volunteers: {
         Row: { activity_id: string; volunteer_id: string }
