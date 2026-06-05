@@ -32,9 +32,14 @@ export type Database = {
         Update: { type_name?: string }
       }
       activities: {
-        Row: { activity_id: string; type_id: string | null; date: string; volunteer_id: string | null; branch_id: string; status: 'upcoming' | 'completed'; created_at: string }
-        Insert: { activity_id?: string; type_id?: string | null; date: string; volunteer_id?: string | null; branch_id: string; status?: 'upcoming' | 'completed' }
-        Update: { type_id?: string | null; date?: string; volunteer_id?: string | null; status?: 'upcoming' | 'completed' }
+        Row: { activity_id: string; type_id: string | null; date: string; branch_id: string; status: 'upcoming' | 'completed'; created_at: string }
+        Insert: { activity_id?: string; type_id?: string | null; date: string; branch_id: string; status?: 'upcoming' | 'completed' }
+        Update: { type_id?: string | null; date?: string; status?: 'upcoming' | 'completed' }
+      }
+      activity_volunteers: {
+        Row: { activity_id: string; volunteer_id: string }
+        Insert: { activity_id: string; volunteer_id: string }
+        Update: never
       }
     }
   }

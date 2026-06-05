@@ -8,7 +8,7 @@ export default async function ActivityAssignmentsPage() {
 
   const activitiesQuery = supabase
     .from('activities')
-    .select('*, activity_types(type_name), branches(name)')
+    .select('*, activity_types(type_name), branches(name), activity_volunteers(volunteer_id, volunteers(name))')
     .order('date', { ascending: false })
 
   const volunteersQuery = supabase.from('volunteers').select('volunteer_id, name').order('name')
