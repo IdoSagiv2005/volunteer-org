@@ -16,10 +16,13 @@ type Activity = {
   activity_volunteers: ActivityVolunteer[]
 }
 
-type Volunteer = { volunteer_id: string; name: string }
-type Props = { activities: Activity[]; volunteers: Volunteer[]; isSuperAdmin: boolean }
+type Volunteer = { volunteer_id: string; name: string; skills: string[] | null }
+type AvailEntry = { volunteer_id: string; date: string }
+type Props = { activities: Activity[]; volunteers: Volunteer[]; availability: AvailEntry[]; isSuperAdmin: boolean }
 
-export default function ActivityAssignmentsClient({ activities: initial, volunteers, isSuperAdmin }: Props) {
+export default function ActivityAssignmentsClient({ activities: initial, volunteers, availability, isSuperAdmin }: Props) {
+  const availableOn = (date: string, volunteerId: string) =>
+    availability.some(a => a.volunteer_id === volunteerId && a.date === date)
   const [activities, setActivities] = useState(initial)
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
   const [pendingIds, setPendingIds] = useState<string[]>([])
@@ -154,17 +157,26 @@ export default function ActivityAssignmentsClient({ activities: initial, volunte
               {volunteers.length === 0 && (
                 <p className="px-3 py-3 text-sm text-gray-400">אין מתנדבים זמינים</p>
               )}
-              {volunteers.map(v => (
-                <label key={v.volunteer_id} className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="checkbox"
-                    checked={pendingIds.includes(v.volunteer_id)}
-                    onChange={() => togglePending(v.volunteer_id)}
-                    className="w-4 h-4 accent-blue-600"
-                  />
-                  <span className="text-sm text-gray-700">{v.name}</span>
-                </label>
-              ))}
+              {volunteers.map(v => {
+                const isAvailable = editingActivity ? availableOn(editingActivity.date, v.volunteer_id) : false
+                return (
+                  <label key={v.volunteer_id} className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="checkbox"
+                      checked={pendingIds.includes(v.volunteer_id)}
+                      onChange={() => togglePending(v.volunteer_id)}
+                      className="w-4 h-4 accent-blue-600"
+                    />
+                    <span className="flex-1 text-sm text-gray-700">{v.name}</span>
+                    {isAvailable && <span className="text-xs text-green-600 font-medium">זמין ✓</span>}
+                    <div className="flex flex-wrap gap-1">
+                      {(v.skills ?? []).map(s => (
+                        <span key={s} className="px-1.5 py-0.5 bg-purple-50 text-purple-600 rounded text-xs">{s}</span>
+                      ))}
+                    </div>
+                  </label>
+                )
+              })}
             </div>
 
             {pendingIds.length > 0 && (

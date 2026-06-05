@@ -16,11 +16,12 @@ type Coordination = {
 
 type Volunteer = { volunteer_id: string; name: string }
 type DeliveryAddress = { address_id: string; address: string; families: { full_name: string } | null }
-type Props = { coordinations: Coordination[]; volunteers: Volunteer[]; deliveries: DeliveryAddress[]; branchId: string | null; isSuperAdmin: boolean }
+type MessageLogEntry = { id: string; volunteer_name: string; address: string; photo_sent: boolean; sent_at: string }
+type Props = { coordinations: Coordination[]; volunteers: Volunteer[]; deliveries: DeliveryAddress[]; messageLog: MessageLogEntry[]; branchId: string | null; isSuperAdmin: boolean }
 
 const empty = { date: '', scheduled_time: '', address: '', volunteer_id: '' }
 
-export default function CoordinationsClient({ coordinations: initial, volunteers, deliveries, branchId, isSuperAdmin }: Props) {
+export default function CoordinationsClient({ coordinations: initial, volunteers, deliveries, messageLog, branchId, isSuperAdmin }: Props) {
   const [coordinations, setCoordinations] = useState(initial)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Coordination | null>(null)
@@ -111,6 +112,39 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
           </table>
         </div>
       </div>
+
+      {messageLog.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-base font-bold text-gray-700 mb-3">היסטוריית הודעות שנשלחו</h3>
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-max">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    {['נשלח ב', 'מתנדב', 'כתובת', 'תמונה'].map(h => (
+                      <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {messageLog.map(m => (
+                    <tr key={m.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{new Date(m.sent_at).toLocaleString('he-IL')}</td>
+                      <td className="px-4 py-3 text-gray-800 font-medium">{m.volunteer_name}</td>
+                      <td className="px-4 py-3 text-gray-600">{m.address}</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${m.photo_sent ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                          {m.photo_sent ? 'נשלחה' : 'לא הייתה'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

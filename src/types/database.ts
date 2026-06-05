@@ -17,9 +17,19 @@ export type Database = {
         Update: { full_name?: string; national_id?: string; address?: string; phone?: string; member_count?: number; disability_type?: string }
       }
       volunteers: {
-        Row: { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; created_at: string }
-        Insert: { volunteer_id?: string; name: string; phone?: string; address?: string; national_id: string; branch_id: string }
-        Update: { name?: string; phone?: string; address?: string; national_id?: string }
+        Row: { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; skills: string[] | null; created_at: string }
+        Insert: { volunteer_id?: string; name: string; phone?: string; address?: string; national_id: string; branch_id: string; skills?: string[] }
+        Update: { name?: string; phone?: string; address?: string; national_id?: string; skills?: string[] }
+      }
+      volunteer_availability: {
+        Row: { id: string; volunteer_id: string; date: string; branch_id: string; created_at: string }
+        Insert: { id?: string; volunteer_id: string; date: string; branch_id: string }
+        Update: never
+      }
+      message_log: {
+        Row: { id: string; volunteer_name: string; phone: string; address: string; coordination_id: string | null; photo_sent: boolean; sent_at: string; branch_id: string }
+        Insert: { id?: string; volunteer_name: string; phone: string; address: string; coordination_id?: string | null; photo_sent?: boolean; branch_id: string }
+        Update: never
       }
       deliveries: {
         Row: { address_id: string; address: string; door_photo_url: string | null; family_id: string | null; branch_id: string; created_at: string }

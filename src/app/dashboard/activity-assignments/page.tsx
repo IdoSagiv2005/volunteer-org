@@ -11,22 +11,26 @@ export default async function ActivityAssignmentsPage() {
     .select('*, activity_types(type_name), branches(name), activity_volunteers(volunteer_id, volunteers(name))')
     .order('date', { ascending: false })
 
-  const volunteersQuery = supabase.from('volunteers').select('volunteer_id, name').order('name')
+  const volunteersQuery = supabase.from('volunteers').select('volunteer_id, name, skills').order('name')
+  const availabilityQuery = supabase.from('volunteer_availability').select('volunteer_id, date')
 
   if (!manager?.is_super_admin && manager?.branch_id) {
     activitiesQuery.eq('branch_id', manager.branch_id)
     volunteersQuery.eq('branch_id', manager.branch_id)
+    availabilityQuery.eq('branch_id', manager.branch_id)
   }
 
-  const [{ data: activities }, { data: volunteers }] = await Promise.all([
+  const [{ data: activities }, { data: volunteers }, { data: availability }] = await Promise.all([
     activitiesQuery,
     volunteersQuery,
+    availabilityQuery,
   ])
 
   return (
     <ActivityAssignmentsClient
       activities={activities ?? []}
       volunteers={volunteers ?? []}
+      availability={availability ?? []}
       isSuperAdmin={manager?.is_super_admin ?? false}
     />
   )

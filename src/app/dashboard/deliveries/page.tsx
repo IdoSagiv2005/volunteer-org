@@ -18,11 +18,19 @@ export default async function DeliveriesPage() {
     volunteersQuery.eq('branch_id', manager.branch_id)
   }
 
-  const [{ data: deliveries }, { data: families }, { data: coordinations }, { data: volunteers }] = await Promise.all([
+  const messageLogQuery = supabase
+    .from('message_log')
+    .select('id, volunteer_name, address, photo_sent, sent_at')
+    .order('sent_at', { ascending: false })
+    .limit(50)
+  if (!manager?.is_super_admin && manager?.branch_id) messageLogQuery.eq('branch_id', manager.branch_id)
+
+  const [{ data: deliveries }, { data: families }, { data: coordinations }, { data: volunteers }, { data: messageLog }] = await Promise.all([
     deliveriesQuery,
     familiesQuery,
     coordinationsQuery,
     volunteersQuery,
+    messageLogQuery,
   ])
 
   return (
@@ -31,6 +39,7 @@ export default async function DeliveriesPage() {
       families={families ?? []}
       coordinations={coordinations ?? []}
       volunteers={volunteers ?? []}
+      messageLog={messageLog ?? []}
       branchId={manager?.branch_id ?? null}
       isSuperAdmin={manager?.is_super_admin ?? false}
     />

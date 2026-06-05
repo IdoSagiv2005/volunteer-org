@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Pencil, Trash2, X, Upload } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Upload, Download } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
 type Family = {
@@ -64,6 +64,21 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
     setFamilies(prev => prev.filter(f => f.family_id !== id))
   }
 
+  function handleExcelExport() {
+    const rows = filtered.map(f => ({
+      'שם מלא': f.full_name,
+      'תעודת זהות': f.national_id,
+      'טלפון': f.phone ?? '',
+      'כתובת': f.address ?? '',
+      'חברי משפחה': f.member_count ?? '',
+      'סוג נכות': f.disability_type ?? '',
+    }))
+    const ws = XLSX.utils.json_to_sheet(rows)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'משפחות')
+    XLSX.writeFile(wb, 'families.xlsx')
+  }
+
   async function handleExcelImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !branchId) return
@@ -95,7 +110,10 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-2xl font-bold text-gray-800">משפחות</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <button onClick={handleExcelExport} className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
+            <Download size={16} /> ייצוא לאקסל
+          </button>
           {!isSuperAdmin && (
             <label className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700 text-sm font-medium">
               <Upload size={16} /> ייבוא מאקסל
@@ -124,7 +142,7 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {['שם מלא', 'תעודת זהות', 'טלפון', 'כתובת', 'חברי משפחה', 'סוג נכות', ''].map(h => (
-                <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>
+                <th key={h} className={`px-4 py-3 text-right text-xs font-semibold text-gray-500${h === 'כתובת' ? ' hidden md:table-cell' : ''}`}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -134,7 +152,7 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
                 <td className="px-4 py-3 font-medium text-gray-800">{f.full_name}</td>
                 <td className="px-4 py-3 text-gray-600">{f.national_id}</td>
                 <td className="px-4 py-3 text-gray-600">{f.phone}</td>
-                <td className="px-4 py-3 text-gray-600">{f.address}</td>
+                <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{f.address}</td>
                 <td className="px-4 py-3 text-gray-600">{f.member_count}</td>
                 <td className="px-4 py-3 text-gray-600">{f.disability_type}</td>
                 <td className="px-4 py-3">

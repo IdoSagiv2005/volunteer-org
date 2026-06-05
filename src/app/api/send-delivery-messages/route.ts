@@ -75,6 +75,18 @@ export async function GET(request: Request) {
       : `שלום ${volunteer.name}!\nיש לך משלוח היום בשעה ${time} לכתובת:\n${coord.address}\n\nאין תמונת דלת במערכת — אנא צלם/י את הדלת בסיום המשלוח ושלח/י אלינו 🙏`
 
     const sent = await sendWhatsApp(volunteer.phone, message, photoUrl)
+
+    if (sent) {
+      await supabaseAdmin.from('message_log').insert({
+        volunteer_name: volunteer.name,
+        phone: volunteer.phone,
+        address: coord.address,
+        coordination_id: coord.id,
+        photo_sent: !!photoUrl,
+        branch_id: coord.branch_id,
+      })
+    }
+
     results.push({ volunteer: volunteer.name, address: coord.address, photo: !!photoUrl, sent })
   }
 

@@ -9,17 +9,19 @@ type Delivery = { address_id: string; address: string; door_photo_url: string | 
 type Family = { family_id: string; full_name: string }
 type Coordination = { id: string; date: string; scheduled_time: string; address: string; volunteer_id: string | null; branch_id: string; volunteers: { name: string } | null }
 type Volunteer = { volunteer_id: string; name: string }
+type MessageLogEntry = { id: string; volunteer_name: string; address: string; photo_sent: boolean; sent_at: string }
 
 type Props = {
   deliveries: Delivery[]
   families: Family[]
   coordinations: Coordination[]
   volunteers: Volunteer[]
+  messageLog: MessageLogEntry[]
   branchId: string | null
   isSuperAdmin: boolean
 }
 
-export default function DeliveriesTabsClient({ deliveries, families, coordinations, volunteers, branchId, isSuperAdmin }: Props) {
+export default function DeliveriesTabsClient({ deliveries, families, coordinations, volunteers, messageLog, branchId, isSuperAdmin }: Props) {
   const [tab, setTab] = useState<'addresses' | 'coordination'>('addresses')
 
   return (
@@ -44,7 +46,7 @@ export default function DeliveriesTabsClient({ deliveries, families, coordinatio
 
       {tab === 'addresses'
         ? <DeliveriesClient deliveries={deliveries} families={families} branchId={branchId} isSuperAdmin={isSuperAdmin} />
-        : <CoordinationsClient coordinations={coordinations} volunteers={volunteers} deliveries={deliveries} branchId={branchId} isSuperAdmin={isSuperAdmin} />
+        : <CoordinationsClient coordinations={coordinations} volunteers={volunteers} deliveries={deliveries} messageLog={messageLog} branchId={branchId} isSuperAdmin={isSuperAdmin} />
       }
     </div>
   )

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Pencil, Trash2, X } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Download } from 'lucide-react'
+import * as XLSX from 'xlsx'
 
 type Activity = { activity_id: string; type_id: string | null; date: string; branch_id: string; status: 'upcoming' | 'completed'; activity_types: { type_name: string } | null; branches: { name: string } | null }
 type ActivityType = { type_id: string; type_name: string }
@@ -49,6 +50,19 @@ export default function ActivitiesClient({ activities: initial, activityTypes, b
     setActivities(prev => prev.filter(a => a.activity_id !== id))
   }
 
+  function handleExcelExport() {
+    const rows = filtered.map(a => ({
+      ...(isSuperAdmin ? { 'סניף': a.branches?.name ?? '' } : {}),
+      'סוג': a.activity_types?.type_name ?? '',
+      'תאריך': a.date,
+      'סטטוס': a.status === 'upcoming' ? 'עתידי' : 'הושלם',
+    }))
+    const ws = XLSX.utils.json_to_sheet(rows)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'פעילויות')
+    XLSX.writeFile(wb, 'activities.xlsx')
+  }
+
   const filterLabels = { all: 'הכל', upcoming: 'עתידיות', completed: 'הושלמו' }
   const colSpan = isSuperAdmin ? 5 : 4
 
@@ -56,9 +70,14 @@ export default function ActivitiesClient({ activities: initial, activityTypes, b
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-2xl font-bold text-gray-800">פעילויות</h2>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-          <Plus size={16} /> הוסף פעילות
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleExcelExport} className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
+            <Download size={16} /> ייצוא לאקסל
+          </button>
+          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+            <Plus size={16} /> הוסף פעילות
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-4">
