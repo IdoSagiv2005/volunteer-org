@@ -51,11 +51,13 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
     const file = e.target.files?.[0]
     if (!file) return
     setUploadingId(delivery.address_id)
-    const path = `door-photos/${delivery.address_id}`
-    const { error } = await supabase.storage.from('deliveries').upload(path, file, { upsert: true })
-    if (error) { alert(`שגיאה בהעלאת התמונה: ${error.message}`); setUploadingId(null); e.target.value = ''; return }
-    const { data: { publicUrl } } = supabase.storage.from('deliveries').getPublicUrl(path)
-    const { data } = await supabase.from('deliveries').update({ door_photo_url: publicUrl }).eq('address_id', delivery.address_id).select('*, families(full_name)').single()
+    const form = new FormData()
+    form.append('file', file)
+    form.append('address_id', delivery.address_id)
+    const res = await fetch('/api/upload-photo', { method: 'POST', body: form })
+    const result = await res.json()
+    if (!res.ok) { alert(`שגיאה בהעלאת התמונה: ${result.error}`); setUploadingId(null); e.target.value = ''; return }
+    const { data } = await supabase.from('deliveries').update({ door_photo_url: result.publicUrl }).eq('address_id', delivery.address_id).select('*, families(full_name)').single()
     if (data) setDeliveries(prev => prev.map(d => d.address_id === data.address_id ? data : d))
     setUploadingId(null)
     e.target.value = ''
