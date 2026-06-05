@@ -1,7 +1,15 @@
 import Link from 'next/link'
-import { Heart, Users, MapPin, Phone, Mail } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+import { Heart, MapPin, Phone, Mail } from 'lucide-react'
 
-export default function Home() {
+export default async function Home() {
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { data: branches } = await admin.from('branches').select('id, name').order('name')
+  const branchList = branches ?? []
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
 
@@ -40,7 +48,7 @@ export default function Home() {
       {/* Stats */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100 border-y border-gray-100">
         {[
-          { value: '5', label: 'סניפים' },
+          { value: String(branchList.length), label: 'סניפים' },
           { value: '+200', label: 'משפחות נתמכות' },
           { value: '+150', label: 'מתנדבים פעילים' },
           { value: '+10', label: 'שנות פעילות' },
@@ -79,9 +87,9 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-white mb-2">הסניפים שלנו</h2>
           <p className="text-blue-200 mb-8">פעילים בקהילות ברחבי הארץ</p>
           <div className="flex flex-wrap justify-center gap-3">
-            {['תל אביב', 'ירושלים', 'אילת', 'באר שבע', 'קריית אתא'].map(city => (
-              <div key={city} className="flex items-center gap-1.5 bg-white/10 text-white px-4 py-2 rounded-full text-sm">
-                <MapPin size={13} /> {city}
+            {branchList.map(branch => (
+              <div key={branch.id} className="flex items-center gap-1.5 bg-white/10 text-white px-4 py-2 rounded-full text-sm">
+                <MapPin size={13} /> {branch.name}
               </div>
             ))}
           </div>
