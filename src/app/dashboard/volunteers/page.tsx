@@ -6,7 +6,7 @@ export default async function VolunteersPage() {
   const { data: { user } } = await supabase.auth.getUser()
   const { data: manager } = await supabase.from('managers').select('branch_id, is_super_admin').eq('user_id', user!.id).single()
 
-  const query = supabase.from('volunteers').select('*').order('name')
+  const query = supabase.from('volunteers').select('*, branches(name)').order('name')
   if (!manager?.is_super_admin && manager?.branch_id) query.eq('branch_id', manager.branch_id)
   const { data: volunteers } = await query
 

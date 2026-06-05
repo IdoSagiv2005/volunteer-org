@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Plus, Pencil, Trash2, X } from 'lucide-react'
 
-type Volunteer = { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string }
+type Volunteer = { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; branches: { name: string } | null }
 type Props = { volunteers: Volunteer[]; branchId: string | null; isSuperAdmin: boolean }
 const empty = { name: '', phone: '', address: '', national_id: '' }
 
@@ -59,11 +59,12 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
         <div className="overflow-x-auto">
         <table className="w-full text-sm min-w-max">
           <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>{['שם', 'תעודת זהות', 'טלפון', 'כתובת', ''].map(h => <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>)}</tr>
+            <tr>{[...(isSuperAdmin ? ['סניף'] : []), 'שם', 'תעודת זהות', 'טלפון', 'כתובת', ''].map(h => <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filtered.map(v => (
               <tr key={v.volunteer_id} className="hover:bg-gray-50">
+                {isSuperAdmin && <td className="px-4 py-3 text-gray-600">{v.branches?.name ?? '—'}</td>}
                 <td className="px-4 py-3 font-medium text-gray-800">{v.name}</td>
                 <td className="px-4 py-3 text-gray-600">{v.national_id}</td>
                 <td className="px-4 py-3 text-gray-600">{v.phone}</td>
@@ -78,7 +79,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">לא נמצאו מתנדבים</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={isSuperAdmin ? 6 : 5} className="px-4 py-8 text-center text-gray-400">לא נמצאו מתנדבים</td></tr>}
           </tbody>
         </table>
         </div>
