@@ -36,6 +36,11 @@ export type Database = {
         Insert: { activity_id?: string; type_id?: string | null; date: string; branch_id: string; status?: 'upcoming' | 'completed' }
         Update: { type_id?: string | null; date?: string; status?: 'upcoming' | 'completed' }
       }
+      coordinations: {
+        Row: { id: string; date: string; time: string; address: string; volunteer_id: string | null; branch_id: string; created_at: string }
+        Insert: { id?: string; date: string; time: string; address: string; volunteer_id?: string | null; branch_id: string }
+        Update: { date?: string; time?: string; address?: string; volunteer_id?: string | null }
+      }
       activity_volunteers: {
         Row: { activity_id: string; volunteer_id: string }
         Insert: { activity_id: string; volunteer_id: string }
