@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Plus, Trash2, X } from 'lucide-react'
 
 type Manager = { id: string; name: string; email: string; phone: string | null; branch_id: string | null; is_super_admin: boolean; branches: { name: string } | null }
@@ -15,7 +14,6 @@ export default function ManagersClient({ managers: initial, branches }: Props) {
   const [replacingManager, setReplacingManager] = useState<Manager | null>(null)
   const [form, setForm] = useState(empty)
   const [error, setError] = useState('')
-  const supabase = createClient()
 
   const takenBranchIds = new Set(managers.filter(m => !m.is_super_admin && m.branch_id).map(m => m.branch_id!))
   const availableBranches = branches.filter(b => !takenBranchIds.has(b.id))
@@ -32,7 +30,11 @@ export default function ManagersClient({ managers: initial, branches }: Props) {
     e.preventDefault()
     setError('')
     if (replacingManager) {
-      await supabase.from('managers').delete().eq('id', replacingManager.id)
+      await fetch('/api/delete-manager', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: replacingManager.id }),
+      })
     }
     const res = await fetch('/api/create-manager', {
       method: 'POST',
@@ -53,7 +55,11 @@ export default function ManagersClient({ managers: initial, branches }: Props) {
 
   async function handleDelete(id: string) {
     if (!confirm('למחוק מנהל זה?')) return
-    await supabase.from('managers').delete().eq('id', id)
+    await fetch('/api/delete-manager', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
     setManagers(prev => prev.filter(m => m.id !== id))
   }
 
