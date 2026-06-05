@@ -93,7 +93,7 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-2xl font-bold text-gray-800">משפחות</h2>
         <div className="flex gap-2">
           {!isSuperAdmin && (
@@ -119,7 +119,8 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
       />
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-max">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {['שם מלא', 'תעודת זהות', 'טלפון', 'כתובת', 'חברי משפחה', 'סוג נכות', ''].map(h => (
@@ -151,11 +152,12 @@ export default function FamiliesClient({ families: initial, branchId, isSuperAdm
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-lg">{editing ? 'עריכת משפחה' : 'הוספת משפחה'}</h3>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>

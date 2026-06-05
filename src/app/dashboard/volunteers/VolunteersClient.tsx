@@ -46,7 +46,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-2xl font-bold text-gray-800">מתנדבים</h2>
         {!isSuperAdmin && (
           <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
@@ -56,7 +56,8 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
       </div>
       <input type="text" placeholder="חיפוש..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-max">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>{['שם', 'תעודת זהות', 'טלפון', 'כתובת', ''].map(h => <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>)}</tr>
           </thead>
@@ -80,10 +81,11 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
             {filtered.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">לא נמצאו מתנדבים</td></tr>}
           </tbody>
         </table>
+        </div>
       </div>
       {showForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-lg">{editing ? 'עריכת מתנדב' : 'הוספת מתנדב'}</h3>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>

@@ -38,7 +38,7 @@ export default function BranchesClient({ branches: initial }: { branches: Branch
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-2xl font-bold text-gray-800">סניפים</h2>
         <button
           onClick={() => { setShowForm(true); setError(''); setNewName('') }}
@@ -49,7 +49,8 @@ export default function BranchesClient({ branches: initial }: { branches: Branch
       </div>
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-max">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {['סניף', 'מנהל', 'אימייל', 'טלפון', ''].map(h => (
@@ -77,11 +78,12 @@ export default function BranchesClient({ branches: initial }: { branches: Branch
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-lg">הוספת סניף</h3>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
