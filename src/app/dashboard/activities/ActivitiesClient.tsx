@@ -4,16 +4,15 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Plus, Pencil, Trash2, X } from 'lucide-react'
 
-type Activity = { activity_id: string; type_id: string | null; date: string; volunteer_id: string | null; branch_id: string; status: 'upcoming' | 'completed'; activity_types: { type_name: string } | null; volunteers: { name: string } | null; branches: { name: string } | null }
-type Volunteer = { volunteer_id: string; name: string }
+type Activity = { activity_id: string; type_id: string | null; date: string; branch_id: string; status: 'upcoming' | 'completed'; activity_types: { type_name: string } | null; branches: { name: string } | null }
 type ActivityType = { type_id: string; type_name: string }
 type Branch = { id: string; name: string }
-type Props = { activities: Activity[]; volunteers: Volunteer[]; activityTypes: ActivityType[]; branches: Branch[]; branchId: string | null; isSuperAdmin: boolean }
+type Props = { activities: Activity[]; activityTypes: ActivityType[]; branches: Branch[]; branchId: string | null; isSuperAdmin: boolean }
 
 type FormStatus = 'upcoming' | 'completed'
-const empty = { type_id: '', date: '', volunteer_id: '', status: 'upcoming' as FormStatus, branch_id: '' }
+const empty = { type_id: '', date: '', status: 'upcoming' as FormStatus, branch_id: '' }
 
-export default function ActivitiesClient({ activities: initial, volunteers, activityTypes, branches, branchId, isSuperAdmin }: Props) {
+export default function ActivitiesClient({ activities: initial, activityTypes, branches, branchId, isSuperAdmin }: Props) {
   const [activities, setActivities] = useState(initial)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Activity | null>(null)
@@ -26,19 +25,19 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
   function openCreate() { setEditing(null); setForm(empty); setShowForm(true) }
   function openEdit(a: Activity) {
     setEditing(a)
-    setForm({ type_id: a.type_id ?? '', date: a.date, volunteer_id: a.volunteer_id ?? '', status: a.status, branch_id: a.branch_id })
+    setForm({ type_id: a.type_id ?? '', date: a.date, status: a.status, branch_id: a.branch_id })
     setShowForm(true)
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const common = { type_id: form.type_id || null, date: form.date, volunteer_id: form.volunteer_id || null, status: form.status }
+    const common = { type_id: form.type_id || null, date: form.date, status: form.status }
     if (editing) {
-      const { data } = await supabase.from('activities').update(common).eq('activity_id', editing.activity_id).select('*, activity_types(type_name), volunteers(name), branches(name)').single()
+      const { data } = await supabase.from('activities').update(common).eq('activity_id', editing.activity_id).select('*, activity_types(type_name), branches(name)').single()
       if (data) setActivities(prev => prev.map((a: Activity) => a.activity_id === data.activity_id ? data : a))
     } else {
       const insertBranchId = isSuperAdmin ? form.branch_id : branchId!
-      const { data } = await supabase.from('activities').insert({ ...common, branch_id: insertBranchId }).select('*, activity_types(type_name), volunteers(name), branches(name)').single()
+      const { data } = await supabase.from('activities').insert({ ...common, branch_id: insertBranchId }).select('*, activity_types(type_name), branches(name)').single()
       if (data) setActivities(prev => [...prev, data])
     }
     setShowForm(false)
@@ -51,7 +50,7 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
   }
 
   const filterLabels = { all: 'הכל', upcoming: 'עתידיות', completed: 'הושלמו' }
-  const colSpan = isSuperAdmin ? 6 : 5
+  const colSpan = isSuperAdmin ? 5 : 4
 
   return (
     <div>
@@ -73,7 +72,7 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
           <table className="w-full text-sm min-w-max">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {[...(isSuperAdmin ? ['סניף'] : []), 'סוג', 'תאריך', 'מתנדב', 'סטטוס', ''].map(h => (
+                {[...(isSuperAdmin ? ['סניף'] : []), 'סוג', 'תאריך', 'סטטוס', ''].map(h => (
                   <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>
                 ))}
               </tr>
@@ -84,7 +83,6 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
                   {isSuperAdmin && <td className="px-4 py-3 text-gray-600">{a.branches?.name ?? '—'}</td>}
                   <td className="px-4 py-3 font-medium text-gray-800">{a.activity_types?.type_name ?? '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{a.date}</td>
-                  <td className="px-4 py-3 text-gray-600">{a.volunteers?.name ?? '—'}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${a.status === 'upcoming' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
                       {a.status === 'upcoming' ? 'עתידי' : 'הושלם'}
@@ -131,13 +129,6 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">תאריך</label>
                 <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">מתנדב</label>
-                <select value={form.volunteer_id} onChange={e => setForm(p => ({ ...p, volunteer_id: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">— בחר מתנדב —</option>
-                  {volunteers.map(v => <option key={v.volunteer_id} value={v.volunteer_id}>{v.name}</option>)}
-                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">סטטוס</label>

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Users, Truck, Calendar, UserCheck, Home, Settings, LogOut, Clock, X } from 'lucide-react'
+import { Users, Truck, Calendar, UserCheck, Home, Settings, LogOut, Clock, X, Shuffle } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', label: 'סקירה כללית', icon: Home },
@@ -13,6 +13,7 @@ const navItems = [
   { href: '/dashboard/manager-hours', label: 'שעות מנהלים', icon: Clock },
   { href: '/dashboard/deliveries', label: 'משלוחים', icon: Truck },
   { href: '/dashboard/activities', label: 'פעילויות', icon: Calendar },
+  { href: '/dashboard/activity-assignments', label: 'שיבוץ פעילויות', icon: Shuffle },
   { href: '/dashboard/activity-types', label: 'סוגי פעילות', icon: Settings },
 ]
 
