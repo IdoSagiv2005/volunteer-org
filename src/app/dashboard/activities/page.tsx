@@ -6,7 +6,7 @@ export default async function ActivitiesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   const { data: manager } = await supabase.from('managers').select('branch_id, is_super_admin').eq('user_id', user!.id).single()
 
-  const activitiesQuery = supabase.from('activities').select('*, activity_types(type_name), volunteers(name), branches(name)').order('date', { ascending: false })
+  const activitiesQuery = supabase.from('activities').select('*, activity_types(type_name), activity_volunteers(volunteer_id, volunteers(name)), branches(name)').order('date', { ascending: false })
   const volunteersQuery = supabase.from('volunteers').select('volunteer_id, name').order('name')
 
   if (!manager?.is_super_admin && manager?.branch_id) {
