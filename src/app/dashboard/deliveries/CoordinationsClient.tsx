@@ -15,11 +15,12 @@ type Coordination = {
 }
 
 type Volunteer = { volunteer_id: string; name: string }
-type Props = { coordinations: Coordination[]; volunteers: Volunteer[]; branchId: string | null; isSuperAdmin: boolean }
+type DeliveryAddress = { address_id: string; address: string; families: { full_name: string } | null }
+type Props = { coordinations: Coordination[]; volunteers: Volunteer[]; deliveries: DeliveryAddress[]; branchId: string | null; isSuperAdmin: boolean }
 
 const empty = { date: '', scheduled_time: '', address: '', volunteer_id: '' }
 
-export default function CoordinationsClient({ coordinations: initial, volunteers, branchId, isSuperAdmin }: Props) {
+export default function CoordinationsClient({ coordinations: initial, volunteers, deliveries, branchId, isSuperAdmin }: Props) {
   const [coordinations, setCoordinations] = useState(initial)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Coordination | null>(null)
@@ -121,7 +122,14 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">כתובת</label>
-                <input type="text" value={form.address} onChange={e => setForm(p => ({ ...p, address: e.target.value }))} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <select value={form.address} onChange={e => setForm(p => ({ ...p, address: e.target.value }))} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">— בחר כתובת —</option>
+                  {deliveries.map(d => (
+                    <option key={d.address_id} value={d.address}>
+                      {d.address}{d.families ? ` — ${d.families.full_name}` : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">מתנדב</label>

@@ -5,6 +5,7 @@ import DeliveriesClient from './DeliveriesClient'
 import CoordinationsClient from './CoordinationsClient'
 
 type Delivery = { address_id: string; address: string; door_photo_url: string | null; family_id: string | null; branch_id: string; families: { full_name: string } | null }
+// Delivery is used both for the addresses tab and as address options in coordination form
 type Family = { family_id: string; full_name: string }
 type Coordination = { id: string; date: string; scheduled_time: string; address: string; volunteer_id: string | null; branch_id: string; volunteers: { name: string } | null }
 type Volunteer = { volunteer_id: string; name: string }
@@ -43,7 +44,7 @@ export default function DeliveriesTabsClient({ deliveries, families, coordinatio
 
       {tab === 'addresses'
         ? <DeliveriesClient deliveries={deliveries} families={families} branchId={branchId} isSuperAdmin={isSuperAdmin} />
-        : <CoordinationsClient coordinations={coordinations} volunteers={volunteers} branchId={branchId} isSuperAdmin={isSuperAdmin} />
+        : <CoordinationsClient coordinations={coordinations} volunteers={volunteers} deliveries={deliveries} branchId={branchId} isSuperAdmin={isSuperAdmin} />
       }
     </div>
   )
