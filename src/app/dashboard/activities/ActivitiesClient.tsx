@@ -4,15 +4,16 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Plus, Pencil, Trash2, X } from 'lucide-react'
 
-type Activity = { activity_id: string; type_id: string | null; date: string; volunteer_id: string | null; branch_id: string; status: 'upcoming' | 'completed'; activity_types: { type_name: string } | null; volunteers: { name: string } | null }
+type Activity = { activity_id: string; type_id: string | null; date: string; volunteer_id: string | null; branch_id: string; status: 'upcoming' | 'completed'; activity_types: { type_name: string } | null; volunteers: { name: string } | null; branches: { name: string } | null }
 type Volunteer = { volunteer_id: string; name: string }
 type ActivityType = { type_id: string; type_name: string }
-type Props = { activities: Activity[]; volunteers: Volunteer[]; activityTypes: ActivityType[]; branchId: string | null; isSuperAdmin: boolean }
+type Branch = { id: string; name: string }
+type Props = { activities: Activity[]; volunteers: Volunteer[]; activityTypes: ActivityType[]; branches: Branch[]; branchId: string | null; isSuperAdmin: boolean }
 
 type FormStatus = 'upcoming' | 'completed'
-const empty: { type_id: string; date: string; volunteer_id: string; status: FormStatus } = { type_id: '', date: '', volunteer_id: '', status: 'upcoming' }
+const empty = { type_id: '', date: '', volunteer_id: '', status: 'upcoming' as FormStatus, branch_id: '' }
 
-export default function ActivitiesClient({ activities: initial, volunteers, activityTypes, branchId, isSuperAdmin }: Props) {
+export default function ActivitiesClient({ activities: initial, volunteers, activityTypes, branches, branchId, isSuperAdmin }: Props) {
   const [activities, setActivities] = useState(initial)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Activity | null>(null)
@@ -25,18 +26,19 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
   function openCreate() { setEditing(null); setForm(empty); setShowForm(true) }
   function openEdit(a: Activity) {
     setEditing(a)
-    setForm({ type_id: a.type_id ?? '', date: a.date, volunteer_id: a.volunteer_id ?? '', status: a.status })
+    setForm({ type_id: a.type_id ?? '', date: a.date, volunteer_id: a.volunteer_id ?? '', status: a.status, branch_id: a.branch_id })
     setShowForm(true)
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const common = { type_id: form.type_id || null, date: form.date, volunteer_id: form.volunteer_id || null, status: form.status as 'upcoming' | 'completed' }
+    const common = { type_id: form.type_id || null, date: form.date, volunteer_id: form.volunteer_id || null, status: form.status }
     if (editing) {
-      const { data } = await supabase.from('activities').update(common).eq('activity_id', editing.activity_id).select('*, activity_types(type_name), volunteers(name)').single()
+      const { data } = await supabase.from('activities').update(common).eq('activity_id', editing.activity_id).select('*, activity_types(type_name), volunteers(name), branches(name)').single()
       if (data) setActivities(prev => prev.map((a: Activity) => a.activity_id === data.activity_id ? data : a))
     } else {
-      const { data } = await supabase.from('activities').insert({ ...common, branch_id: branchId! }).select('*, activity_types(type_name), volunteers(name)').single()
+      const insertBranchId = isSuperAdmin ? form.branch_id : branchId!
+      const { data } = await supabase.from('activities').insert({ ...common, branch_id: insertBranchId }).select('*, activity_types(type_name), volunteers(name), branches(name)').single()
       if (data) setActivities(prev => [...prev, data])
     }
     setShowForm(false)
@@ -49,16 +51,15 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
   }
 
   const filterLabels = { all: 'הכל', upcoming: 'עתידיות', completed: 'הושלמו' }
+  const colSpan = isSuperAdmin ? 6 : 5
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-2xl font-bold text-gray-800">פעילויות</h2>
-        {!isSuperAdmin && (
-          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-            <Plus size={16} /> הוסף פעילות
-          </button>
-        )}
+        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+          <Plus size={16} /> הוסף פעילות
+        </button>
       </div>
 
       <div className="flex gap-2 mb-4">
@@ -69,34 +70,37 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-max">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>{['סוג', 'תאריך', 'מתנדב', 'סטטוס', ''].map(h => <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>)}</tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {filtered.map(a => (
-              <tr key={a.activity_id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium text-gray-800">{a.activity_types?.type_name ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-600">{a.date}</td>
-                <td className="px-4 py-3 text-gray-600">{a.volunteers?.name ?? '—'}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${a.status === 'upcoming' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
-                    {a.status === 'upcoming' ? 'עתידי' : 'הושלם'}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  {!isSuperAdmin && (
+          <table className="w-full text-sm min-w-max">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                {[...(isSuperAdmin ? ['סניף'] : []), 'סוג', 'תאריך', 'מתנדב', 'סטטוס', ''].map(h => (
+                  <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filtered.map(a => (
+                <tr key={a.activity_id} className="hover:bg-gray-50">
+                  {isSuperAdmin && <td className="px-4 py-3 text-gray-600">{a.branches?.name ?? '—'}</td>}
+                  <td className="px-4 py-3 font-medium text-gray-800">{a.activity_types?.type_name ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{a.date}</td>
+                  <td className="px-4 py-3 text-gray-600">{a.volunteers?.name ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${a.status === 'upcoming' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
+                      {a.status === 'upcoming' ? 'עתידי' : 'הושלם'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <button onClick={() => openEdit(a)} className="text-gray-400 hover:text-blue-600"><Pencil size={15} /></button>
                       <button onClick={() => handleDelete(a.activity_id)} className="text-gray-400 hover:text-red-600"><Trash2 size={15} /></button>
                     </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">לא נמצאו פעילויות</td></tr>}
-          </tbody>
-        </table>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && <tr><td colSpan={colSpan} className="px-4 py-8 text-center text-gray-400">לא נמצאו פעילויות</td></tr>}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -108,6 +112,15 @@ export default function ActivitiesClient({ activities: initial, volunteers, acti
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
+              {isSuperAdmin && !editing && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">סניף</label>
+                  <select value={form.branch_id} onChange={e => setForm(p => ({ ...p, branch_id: e.target.value }))} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">— בחר סניף —</option>
+                    {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">סוג פעילות</label>
                 <select value={form.type_id} onChange={e => setForm(p => ({ ...p, type_id: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">

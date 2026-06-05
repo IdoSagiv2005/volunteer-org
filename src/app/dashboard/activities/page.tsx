@@ -6,7 +6,7 @@ export default async function ActivitiesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   const { data: manager } = await supabase.from('managers').select('branch_id, is_super_admin').eq('user_id', user!.id).single()
 
-  const activitiesQuery = supabase.from('activities').select('*, activity_types(type_name), volunteers(name)').order('date', { ascending: false })
+  const activitiesQuery = supabase.from('activities').select('*, activity_types(type_name), volunteers(name), branches(name)').order('date', { ascending: false })
   const volunteersQuery = supabase.from('volunteers').select('volunteer_id, name').order('name')
 
   if (!manager?.is_super_admin && manager?.branch_id) {
@@ -14,11 +14,12 @@ export default async function ActivitiesPage() {
     volunteersQuery.eq('branch_id', manager.branch_id)
   }
 
-  const [{ data: activities }, { data: volunteers }, { data: activityTypes }] = await Promise.all([
+  const [{ data: activities }, { data: volunteers }, { data: activityTypes }, { data: branches }] = await Promise.all([
     activitiesQuery,
     volunteersQuery,
     supabase.from('activity_types').select('*').order('type_name'),
+    supabase.from('branches').select('id, name').order('name'),
   ])
 
-  return <ActivitiesClient activities={activities ?? []} volunteers={volunteers ?? []} activityTypes={activityTypes ?? []} branchId={manager?.branch_id ?? null} isSuperAdmin={manager?.is_super_admin ?? false} />
+  return <ActivitiesClient activities={activities ?? []} volunteers={volunteers ?? []} activityTypes={activityTypes ?? []} branches={branches ?? []} branchId={manager?.branch_id ?? null} isSuperAdmin={manager?.is_super_admin ?? false} />
 }

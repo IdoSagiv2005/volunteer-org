@@ -13,10 +13,10 @@ const navItems = [
   { href: '/dashboard/manager-hours', label: 'שעות מנהלים', icon: Clock },
   { href: '/dashboard/deliveries', label: 'משלוחים', icon: Truck },
   { href: '/dashboard/activities', label: 'פעילויות', icon: Calendar },
+  { href: '/dashboard/activity-types', label: 'סוגי פעילות', icon: Settings },
 ]
 
 const superAdminItems = [
-  { href: '/dashboard/activity-types', label: 'סוגי פעילות', icon: Settings },
   { href: '/dashboard/branches', label: 'סניפים', icon: Settings },
   { href: '/dashboard/managers', label: 'מנהלים', icon: Users },
 ]
