@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 import { Heart, MapPin, Phone, Mail } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const admin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
