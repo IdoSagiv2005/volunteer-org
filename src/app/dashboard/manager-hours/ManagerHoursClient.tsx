@@ -38,6 +38,7 @@ export default function ManagerHoursClient({ hours: initial, managerId, managerN
 
   const filtered = hours.filter(h => !filterManager || h.manager_id === filterManager)
   const totalHours = filtered.reduce((sum, h) => sum + Number(h.hours), 0)
+  const totalDays = new Set(filtered.map(h => h.date)).size
 
   const managerTotals = useMemo(() => {
     const map: Record<string, { name: string; branch: string; total: number }> = {}
@@ -112,7 +113,11 @@ export default function ManagerHoursClient({ hours: initial, managerId, managerN
             <p className="text-2xl font-bold text-blue-700">{totalHours.toFixed(1)}</p>
             <p className="text-sm text-blue-600 font-medium mt-1">{filterManager ? 'שעות (מסונן)' : 'סה"כ שעות'}</p>
           </div>
-          {managerTotals.slice(0, 3).map(m => (
+          <div className="bg-purple-50 rounded-xl p-4">
+            <p className="text-2xl font-bold text-purple-700">{totalDays}</p>
+            <p className="text-sm text-purple-600 font-medium mt-1">{filterManager ? 'ימים (מסונן)' : 'סה"כ ימים'}</p>
+          </div>
+          {managerTotals.slice(0, 2).map(m => (
             <div key={m.name} className="bg-gray-50 rounded-xl p-4">
               <p className="text-2xl font-bold text-gray-700">{m.total.toFixed(1)}ש׳</p>
               <p className="text-sm text-gray-500 font-medium mt-1 truncate">{m.name}</p>
@@ -121,10 +126,14 @@ export default function ManagerHoursClient({ hours: initial, managerId, managerN
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-blue-50 rounded-xl p-4">
             <p className="text-2xl font-bold text-blue-700">{totalHours.toFixed(1)}</p>
-            <p className="text-sm text-blue-600 font-medium mt-1">סה"כ שעות שלך</p>
+            <p className="text-sm text-blue-600 font-medium mt-1">סה"כ שעות</p>
+          </div>
+          <div className="bg-purple-50 rounded-xl p-4">
+            <p className="text-2xl font-bold text-purple-700">{totalDays}</p>
+            <p className="text-sm text-purple-600 font-medium mt-1">סה"כ ימים</p>
           </div>
           <div className="bg-green-50 rounded-xl p-4">
             <p className="text-2xl font-bold text-green-700">{hours.length}</p>
