@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, X } from 'lucide-react'
+import { Plus, Trash2, X } from 'lucide-react'
 
 type Manager = { name: string; email: string; phone: string | null } | null
 type Branch = { id: string; name: string; managers: Manager | Manager[] }
@@ -13,6 +13,12 @@ export default function BranchesClient({ branches: initial }: { branches: Branch
   const [newName, setNewName] = useState('')
   const [error, setError] = useState('')
   const supabase = createClient()
+
+  async function handleDelete(id: string) {
+    if (!confirm('למחוק סניף זה? פעולה זו תמחק את כל הנתונים המשויכים אליו.')) return
+    const { error } = await supabase.from('branches').delete().eq('id', id)
+    if (!error) setBranches(prev => prev.filter(b => b.id !== id))
+  }
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
@@ -46,7 +52,7 @@ export default function BranchesClient({ branches: initial }: { branches: Branch
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {['סניף', 'מנהל', 'אימייל', 'טלפון'].map(h => (
+              {['סניף', 'מנהל', 'אימייל', 'טלפון', ''].map(h => (
                 <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{h}</th>
               ))}
             </tr>
@@ -60,11 +66,14 @@ export default function BranchesClient({ branches: initial }: { branches: Branch
                   <td className="px-4 py-3 text-gray-600">{mgr?.name ?? <span className="text-orange-500">אין מנהל</span>}</td>
                   <td className="px-4 py-3 text-gray-600">{mgr?.email ?? '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{mgr?.phone ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => handleDelete(b.id)} className="text-gray-400 hover:text-red-600"><Trash2 size={15} /></button>
+                  </td>
                 </tr>
               )
             })}
             {branches.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">אין סניפים עדיין</td></tr>
+              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">אין סניפים עדיין</td></tr>
             )}
           </tbody>
         </table>
