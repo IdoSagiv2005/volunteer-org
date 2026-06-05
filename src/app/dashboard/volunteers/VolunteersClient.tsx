@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Pencil, Trash2, X } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Upload } from 'lucide-react'
+import * as XLSX from 'xlsx'
 
 type Volunteer = { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; branches: { name: string } | null }
 type Props = { volunteers: Volunteer[]; branchId: string | null; isSuperAdmin: boolean }
@@ -38,6 +39,31 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
     setShowForm(false)
   }
 
+  async function handleExcelImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !branchId) return
+    const buf = await file.arrayBuffer()
+    const wb = XLSX.read(buf)
+    const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]])
+    const payload = rows.map(r => ({
+      name: String(r['name'] ?? r['full_name'] ?? ''),
+      national_id: String(r['national_id'] ?? r['id'] ?? ''),
+      phone: String(r['phone'] ?? ''),
+      address: String(r['address'] ?? ''),
+      branch_id: branchId,
+    })).filter(r => r.name && r.national_id)
+
+    const { data } = await supabase.from('volunteers').upsert(payload, { onConflict: 'national_id' }).select()
+    if (data) {
+      setVolunteers(prev => {
+        const map = new Map(prev.map(v => [v.volunteer_id, v]))
+        data.forEach(v => map.set(v.volunteer_id, v))
+        return Array.from(map.values())
+      })
+    }
+    e.target.value = ''
+  }
+
   async function handleDelete(id: string) {
     if (!confirm('למחוק מתנדב זה?')) return
     await supabase.from('volunteers').delete().eq('volunteer_id', id)
@@ -49,9 +75,15 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-2xl font-bold text-gray-800">מתנדבים</h2>
         {!isSuperAdmin && (
-          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-            <Plus size={16} /> הוסף מתנדב
-          </button>
+          <div className="flex gap-2">
+            <label className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700 text-sm font-medium">
+              <Upload size={16} /> ייבוא מאקסל
+              <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleExcelImport} />
+            </label>
+            <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+              <Plus size={16} /> הוסף מתנדב
+            </button>
+          </div>
         )}
       </div>
       <input type="text" placeholder="חיפוש..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
