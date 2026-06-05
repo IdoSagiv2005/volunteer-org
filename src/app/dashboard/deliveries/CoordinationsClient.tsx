@@ -25,17 +25,20 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Coordination | null>(null)
   const [form, setForm] = useState(empty)
+  const [error, setError] = useState('')
   const supabase = createClient()
 
-  function openCreate() { setEditing(null); setForm(empty); setShowForm(true) }
+  function openCreate() { setEditing(null); setForm(empty); setError(''); setShowForm(true) }
   function openEdit(c: Coordination) {
     setEditing(c)
     setForm({ date: c.date, scheduled_time: c.scheduled_time.slice(0, 5), address: c.address, volunteer_id: c.volunteer_id ?? '' })
+    setError('')
     setShowForm(true)
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setError('')
     const payload = {
       date: form.date,
       scheduled_time: form.scheduled_time,
@@ -44,10 +47,12 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
       branch_id: branchId!,
     }
     if (editing) {
-      const { data } = await supabase.from('coordinations').update(payload).eq('id', editing.id).select('*, volunteers(name)').single()
+      const { data, error: err } = await supabase.from('coordinations').update(payload).eq('id', editing.id).select('*, volunteers(name)').single()
+      if (err) { setError(err.message); return }
       if (data) setCoordinations(prev => prev.map(c => c.id === data.id ? data : c))
     } else {
-      const { data } = await supabase.from('coordinations').insert(payload).select('*, volunteers(name)').single()
+      const { data, error: err } = await supabase.from('coordinations').insert(payload).select('*, volunteers(name)').single()
+      if (err) { setError(err.message); return }
       if (data) setCoordinations(prev => [...prev, data])
     }
     setShowForm(false)
@@ -138,6 +143,7 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
                   {volunteers.map(v => <option key={v.volunteer_id} value={v.volunteer_id}>{v.name}</option>)}
                 </select>
               </div>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
               <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">
                 {editing ? 'שמור שינויים' : 'הוסף תיאום'}
               </button>

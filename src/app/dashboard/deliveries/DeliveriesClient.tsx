@@ -42,7 +42,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('למחוק משלוח זה?')) return
+    if (!confirm('למחוק כתובת זו?')) return
     await supabase.from('deliveries').delete().eq('address_id', id)
     setDeliveries(prev => prev.filter(d => d.address_id !== id))
   }
@@ -72,7 +72,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
           </button>
           {!isSuperAdmin && (
             <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-              <Plus size={16} /> הוסף משלוח
+              <Plus size={16} /> הוסף כתובת
             </button>
           )}
         </div>
@@ -121,7 +121,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg">{editing ? 'עריכת משלוח' : 'הוספת משלוח'}</h3>
+              <h3 className="font-bold text-lg">{editing ? 'עריכת כתובת' : 'הוספת כתובת'}</h3>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -136,7 +136,7 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
                   {families.map(f => <option key={f.family_id} value={f.family_id}>{f.full_name}</option>)}
                 </select>
               </div>
-              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'שמור שינויים' : 'הוסף משלוח'}</button>
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">{editing ? 'שמור שינויים' : 'הוסף כתובת'}</button>
             </form>
           </div>
         </div>
