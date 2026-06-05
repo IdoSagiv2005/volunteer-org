@@ -52,7 +52,8 @@ export default function DeliveriesClient({ deliveries: initial, families, branch
     if (!file) return
     setUploadingId(delivery.address_id)
     const path = `door-photos/${delivery.address_id}`
-    await supabase.storage.from('deliveries').upload(path, file, { upsert: true })
+    const { error } = await supabase.storage.from('deliveries').upload(path, file, { upsert: true })
+    if (error) { alert(`שגיאה בהעלאת התמונה: ${error.message}`); setUploadingId(null); e.target.value = ''; return }
     const { data: { publicUrl } } = supabase.storage.from('deliveries').getPublicUrl(path)
     const { data } = await supabase.from('deliveries').update({ door_photo_url: publicUrl }).eq('address_id', delivery.address_id).select('*, families(full_name)').single()
     if (data) setDeliveries(prev => prev.map(d => d.address_id === data.address_id ? data : d))
