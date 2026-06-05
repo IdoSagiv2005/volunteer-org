@@ -46,14 +46,17 @@ export default function CoordinationsClient({ coordinations: initial, volunteers
       volunteer_id: form.volunteer_id || null,
       branch_id: branchId!,
     }
+    const volunteerName = volunteers.find(v => v.volunteer_id === form.volunteer_id)?.name ?? null
+    const volunteerObj = volunteerName ? { name: volunteerName } : null
+
     if (editing) {
-      const { data, error: err } = await supabase.from('coordinations').update(payload).eq('id', editing.id).select('*, volunteers(name)').single()
+      const { error: err } = await supabase.from('coordinations').update(payload).eq('id', editing.id)
       if (err) { setError(err.message); return }
-      if (data) setCoordinations(prev => prev.map(c => c.id === data.id ? data : c))
+      setCoordinations(prev => prev.map(c => c.id === editing.id ? { ...editing, ...payload, volunteers: volunteerObj } : c))
     } else {
-      const { data, error: err } = await supabase.from('coordinations').insert(payload).select('*, volunteers(name)').single()
+      const { data, error: err } = await supabase.from('coordinations').insert(payload).select('id').single()
       if (err) { setError(err.message); return }
-      if (data) setCoordinations(prev => [...prev, data])
+      if (data) setCoordinations(prev => [...prev, { ...payload, id: data.id, volunteers: volunteerObj }])
     }
     setShowForm(false)
   }
