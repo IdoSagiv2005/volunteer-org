@@ -8,7 +8,7 @@ export default async function DeliveriesPage() {
 
   const deliveriesQuery = supabase.from('deliveries').select('*, families(full_name)').order('created_at', { ascending: false })
   const familiesQuery = supabase.from('families').select('family_id, full_name').order('full_name')
-  const coordinationsQuery = supabase.from('coordinations').select('*, volunteers(name)').order('date').order('time')
+  const coordinationsQuery = supabase.from('coordinations').select('*, volunteers(name)').order('date').order('scheduled_time')
   const volunteersQuery = supabase.from('volunteers').select('volunteer_id, name').order('name')
 
   if (!manager?.is_super_admin && manager?.branch_id) {
