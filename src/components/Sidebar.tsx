@@ -4,13 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Users, Truck, Calendar, UserCheck, Home, Settings, LogOut, Clock, X, Shuffle, CalendarCheck } from 'lucide-react'
+import { Users, Truck, Calendar, UserCheck, Home, Settings, LogOut, Clock, X, Shuffle } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', label: 'סקירה כללית', icon: Home },
   { href: '/dashboard/families', label: 'משפחות', icon: Users },
   { href: '/dashboard/volunteers', label: 'מתנדבים', icon: UserCheck },
-  { href: '/dashboard/volunteer-availability', label: 'זמינות מתנדבים', icon: CalendarCheck },
   { href: '/dashboard/manager-hours', label: 'שעות מנהלים', icon: Clock },
   { href: '/dashboard/deliveries', label: 'משלוחים', icon: Truck },
   { href: '/dashboard/activities', label: 'פעילויות', icon: Calendar },

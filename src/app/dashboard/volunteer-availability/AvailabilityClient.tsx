@@ -39,8 +39,6 @@ export default function AvailabilityClient({ volunteers, availability: initial, 
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">זמינות מתנדבים</h2>
-
       {isSuperAdmin && (
         <p className="mb-4 text-sm text-gray-500 bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3">
           מנהל-על — ניתן לצפייה בלבד. זמינות מוגדרת על ידי מנהלי הסניפים.

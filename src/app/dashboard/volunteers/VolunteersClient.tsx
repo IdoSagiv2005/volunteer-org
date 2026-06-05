@@ -92,7 +92,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h2 className="text-2xl font-bold text-gray-800">מתנדבים</h2>
+        <div />
         <div className="flex gap-2 flex-wrap">
           <button onClick={handleExcelExport} className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
             <Download size={16} /> ייצוא לאקסל
