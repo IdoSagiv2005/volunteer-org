@@ -17,9 +17,9 @@ export type Database = {
         Update: { full_name?: string; national_id?: string; address?: string; phone?: string; member_count?: number; disability_type?: string }
       }
       volunteers: {
-        Row: { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; skills: string[] | null; created_at: string }
-        Insert: { volunteer_id?: string; name: string; phone?: string; address?: string; national_id: string; branch_id: string; skills?: string[] }
-        Update: { name?: string; phone?: string; address?: string; national_id?: string; skills?: string[] }
+        Row: { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; skills: string[] | null; type: string | null; created_at: string }
+        Insert: { volunteer_id?: string; name: string; phone?: string; address?: string; national_id: string; branch_id: string; skills?: string[]; type?: string }
+        Update: { name?: string; phone?: string; address?: string; national_id?: string; skills?: string[]; type?: string }
       }
       volunteer_availability: {
         Row: { id: string; volunteer_id: string; date: string; branch_id: string; created_at: string }

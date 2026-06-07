@@ -5,9 +5,10 @@ import { createClient } from '@/lib/supabase/client'
 import { Plus, Pencil, Trash2, X, Upload, Download } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
-type Volunteer = { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; skills: string[] | null; branches: { name: string } | null }
+type Volunteer = { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; skills: string[] | null; type: string | null; branches: { name: string } | null }
 type Props = { volunteers: Volunteer[]; branchId: string | null; isSuperAdmin: boolean }
-const empty = { name: '', phone: '', address: '', national_id: '', skills: '' }
+const VOLUNTEER_TYPES = ['שטח', 'חונכות', 'עונתיים'] as const
+const empty = { name: '', phone: '', address: '', national_id: '', skills: '', type: '' }
 
 export default function VolunteersClient({ volunteers: initial, branchId, isSuperAdmin }: Props) {
   const [volunteers, setVolunteers] = useState(initial)
@@ -22,7 +23,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
   function openCreate() { setEditing(null); setForm(empty); setShowForm(true) }
   function openEdit(v: Volunteer) {
     setEditing(v)
-    setForm({ name: v.name, phone: v.phone ?? '', address: v.address ?? '', national_id: v.national_id, skills: (v.skills ?? []).join(', ') })
+    setForm({ name: v.name, phone: v.phone ?? '', address: v.address ?? '', national_id: v.national_id, skills: (v.skills ?? []).join(', '), type: v.type ?? '' })
     setShowForm(true)
   }
 
@@ -32,7 +33,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const payload = { ...form, skills: parseSkills(form.skills), branch_id: branchId! }
+    const payload = { ...form, skills: parseSkills(form.skills), type: form.type || null, branch_id: branchId! }
     if (editing) {
       const { data } = await supabase.from('volunteers').update(payload).eq('volunteer_id', editing.volunteer_id).select('*, branches(name)').single()
       if (data) setVolunteers(prev => prev.map(v => v.volunteer_id === data.volunteer_id ? data : v))
@@ -60,6 +61,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
       national_id: String(r['national_id'] ?? r['id'] ?? ''),
       phone: String(r['phone'] ?? ''),
       address: String(r['address'] ?? ''),
+      type: r['סוג'] ? String(r['סוג']) : null,
       skills: r['skills'] ? String(r['skills']).split(',').map((s: string) => s.trim()).filter(Boolean) : [],
       branch_id: branchId,
     })).filter(r => r.name && r.national_id)
@@ -80,6 +82,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
       'תעודת זהות': v.national_id,
       'טלפון': v.phone ?? '',
       'כתובת': v.address ?? '',
+      'סוג': v.type ?? '',
       'כישורים': (v.skills ?? []).join(', '),
       ...(isSuperAdmin ? { 'סניף': v.branches?.name ?? '' } : {}),
     }))
@@ -118,7 +121,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
           <table className="w-full text-sm min-w-max">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {[...(isSuperAdmin ? ['סניף'] : []), 'שם', 'תעודת זהות', 'טלפון', 'כתובת', 'כישורים', ''].map(h => (
+                {[...(isSuperAdmin ? ['סניף'] : []), 'שם', 'תעודת זהות', 'טלפון', 'כתובת', 'סוג', 'כישורים', ''].map(h => (
                   <th key={h} className={`px-4 py-3 text-right text-xs font-semibold text-gray-500${h === 'כתובת' ? ' hidden md:table-cell' : ''}`}>{h}</th>
                 ))}
               </tr>
@@ -131,6 +134,9 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
                   <td className="px-4 py-3 text-gray-600">{v.national_id}</td>
                   <td className="px-4 py-3 text-gray-600">{v.phone}</td>
                   <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{v.address}</td>
+                  <td className="px-4 py-3">
+                    {v.type && <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">{v.type}</span>}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {(v.skills ?? []).map(s => (
@@ -148,7 +154,7 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && <tr><td colSpan={isSuperAdmin ? 7 : 6} className="px-4 py-8 text-center text-gray-400">לא נמצאו מתנדבים</td></tr>}
+              {filtered.length === 0 && <tr><td colSpan={isSuperAdmin ? 8 : 7} className="px-4 py-8 text-center text-gray-400">לא נמצאו מתנדבים</td></tr>}
             </tbody>
           </table>
         </div>
@@ -173,6 +179,13 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
                   <input type="text" value={form[key as keyof typeof form]} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} required={required} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">סוג</label>
+                <select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">— בחר סוג —</option>
+                  {VOLUNTEER_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">כישורים <span className="text-gray-400 font-normal">(מופרד בפסיקים)</span></label>
                 <input type="text" value={form.skills} onChange={e => setForm(p => ({ ...p, skills: e.target.value }))} placeholder="נהיגה, בישול, עברית" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
