@@ -33,13 +33,21 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const payload = { ...form, skills: parseSkills(form.skills), type: form.type || null, branch_id: branchId! }
+    const skills = parseSkills(form.skills)
+    const type = form.type || null
+    const payload = { name: form.name, phone: form.phone, address: form.address, national_id: form.national_id, skills, type, branch_id: branchId! }
     if (editing) {
-      const { data } = await supabase.from('volunteers').update(payload).eq('volunteer_id', editing.volunteer_id).select('*, branches(name)').single()
-      if (data) setVolunteers(prev => prev.map(v => v.volunteer_id === data.volunteer_id ? data : v))
+      const { error } = await supabase.from('volunteers').update(payload).eq('volunteer_id', editing.volunteer_id)
+      if (!error) {
+        const updated: Volunteer = { ...editing, name: form.name, phone: form.phone || null, address: form.address || null, national_id: form.national_id, skills, type }
+        setVolunteers(prev => prev.map(v => v.volunteer_id === editing.volunteer_id ? updated : v))
+      }
     } else {
-      const { data } = await supabase.from('volunteers').insert(payload).select('*, branches(name)').single()
-      if (data) setVolunteers(prev => [...prev, data])
+      const { data } = await supabase.from('volunteers').insert(payload).select('volunteer_id').single()
+      if (data) {
+        const created: Volunteer = { volunteer_id: data.volunteer_id, name: form.name, phone: form.phone || null, address: form.address || null, national_id: form.national_id, skills, type, branch_id: branchId!, branches: null }
+        setVolunteers(prev => [...prev, created])
+      }
     }
     setShowForm(false)
   }
