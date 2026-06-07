@@ -38,15 +38,21 @@ export default function VolunteersClient({ volunteers: initial, branchId, isSupe
     const payload = { name: form.name, phone: form.phone, address: form.address, national_id: form.national_id, skills, type, branch_id: branchId! }
     if (editing) {
       const { error } = await supabase.from('volunteers').update(payload).eq('volunteer_id', editing.volunteer_id)
+      console.log('update result:', { error, payload })
       if (!error) {
         const updated: Volunteer = { ...editing, name: form.name, phone: form.phone || null, address: form.address || null, national_id: form.national_id, skills, type }
         setVolunteers(prev => prev.map(v => v.volunteer_id === editing.volunteer_id ? updated : v))
+      } else {
+        alert('שגיאה בשמירה: ' + error.message)
       }
     } else {
-      const { data } = await supabase.from('volunteers').insert(payload).select('volunteer_id').single()
+      const { data, error } = await supabase.from('volunteers').insert(payload).select('volunteer_id').single()
+      console.log('insert result:', { data, error, payload })
       if (data) {
         const created: Volunteer = { volunteer_id: data.volunteer_id, name: form.name, phone: form.phone || null, address: form.address || null, national_id: form.national_id, skills, type, branch_id: branchId!, branches: null }
         setVolunteers(prev => [...prev, created])
+      } else if (error) {
+        alert('שגיאה בשמירה: ' + error.message)
       }
     }
     setShowForm(false)
