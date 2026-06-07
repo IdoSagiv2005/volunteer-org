@@ -4,7 +4,7 @@ import { useState } from 'react'
 import VolunteersClient from './VolunteersClient'
 import AvailabilityClient from '../volunteer-availability/AvailabilityClient'
 
-type Volunteer = { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; skills: string[] | null; branches: { name: string } | null }
+type Volunteer = { volunteer_id: string; name: string; phone: string | null; address: string | null; national_id: string; branch_id: string; skills: string[] | null; type: string | null; branches: { name: string } | null }
 type AvailEntry = { id: string; volunteer_id: string; date: string }
 
 type Props = {
